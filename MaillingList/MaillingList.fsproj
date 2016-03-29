@@ -64,8 +64,16 @@
       <HintPath>..\packages\Argu.2.1\lib\net40\Argu.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Chessie">
+      <HintPath>..\packages\Chessie.0.5.1\lib\net40\Chessie.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FSharp.Configuration">
       <HintPath>..\packages\FSharp.Configuration.0.5.12\lib\net40\FSharp.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.3.0.2\lib\net40\FSharp.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Data">
@@ -74,9 +82,6 @@
     </Reference>
     <Reference Include="FSharp.Data.TypeProviders, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="SharpYaml">
       <HintPath>..\packages\FSharp.Configuration.0.5.12\lib\net40\SharpYaml.dll</HintPath>
       <Private>True</Private>
