@@ -108,11 +108,25 @@ module Program =
         | CliArgumentParsingFailure ex -> printfn "FAILURE: %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
         | ConfigurationFailure ex      -> printfn "FAILURE: %s" "An error occurred while reading from the application's configuration file."
 
+    open System.IO
+    open System 
+
+    let log err =
+        let makeLogMsg err = 
+            match err with
+            | DbUpdateFailure ex           -> [sprintf "%s, database update failure" (DateTime.Now.ToString()); sprintf "%A" ex]
+            | CsvFileAccessFailure ex      -> [sprintf "%s, CSV file access failure" (DateTime.Now.ToString()); sprintf "%A" ex]
+            | CliArgumentParsingFailure ex -> [sprintf "%s, CLI argument parsing failure" (DateTime.Now.ToString()); sprintf "%A" ex]
+            | ConfigurationFailure ex      -> [sprintf "%s, configuration failure" (DateTime.Now.ToString()); sprintf "%A" ex]
+        try File.AppendAllLines("log.txt", err |> makeLogMsg) with _ -> ()
+
     [<EntryPoint>]
     let main argv = 
         let result = run argv
 
         match result with
         | Ok _     -> printfn "SUCCESS"
-        | Bad errs -> errs |> List.iter handleError
+        | Bad errs -> 
+            errs |> List.iter handleError
+            errs |> List.iter log
         0
