@@ -33,14 +33,14 @@ module DataAccess =
     
     let private updateDb cs updater =
         let db = DbSchema.GetDataContext(cs)
-        updater db
+        do updater db
         db.DataContext.SubmitChanges()
 
     let insert cs list =
         let insert (db:Database) = 
-            list
-            |> List.map (fun e -> toDto e.Email e.Name)
-            |> db.MailingList.InsertAllOnSubmit
+            do list
+               |> List.map (fun e -> toDto e.Email e.Name)
+               |> db.MailingList.InsertAllOnSubmit
         let updater () = updateDb cs insert
         tryF updater DbUpdateFailure
 
@@ -103,10 +103,10 @@ module Program =
 
     let handleError err =
         match err with
-        | DbUpdateFailure ex           -> printfn "FAILURE: %s" "An error occurred while accessing the database."
-        | CsvFileAccessFailure ex      -> printfn "FAILURE: %s" "An error occurred while accessing the CSV file."
-        | CliArgumentParsingFailure ex -> printfn "FAILURE: %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
-        | ConfigurationFailure ex      -> printfn "FAILURE: %s" "An error occurred while reading from the application's configuration file."
+        | DbUpdateFailure ex           -> do printfn "FAILURE: %s" "An error occurred while accessing the database."
+        | CsvFileAccessFailure ex      -> do printfn "FAILURE: %s" "An error occurred while accessing the CSV file."
+        | CliArgumentParsingFailure ex -> do printfn "FAILURE: %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
+        | ConfigurationFailure ex      -> do printfn "FAILURE: %s" "An error occurred while reading from the application's configuration file."
 
     open System.IO
     open System 
@@ -118,15 +118,14 @@ module Program =
             | CsvFileAccessFailure ex      -> [sprintf "%s, CSV file access failure" (DateTime.Now.ToString()); sprintf "%A" ex]
             | CliArgumentParsingFailure ex -> [sprintf "%s, CLI argument parsing failure" (DateTime.Now.ToString()); sprintf "%A" ex]
             | ConfigurationFailure ex      -> [sprintf "%s, configuration failure" (DateTime.Now.ToString()); sprintf "%A" ex]
-        try File.AppendAllLines("log.txt", err |> makeLogMsg) with _ -> ()
+        do try File.AppendAllLines("log.txt", err |> makeLogMsg) with _ -> ()
 
     [<EntryPoint>]
     let main argv = 
         let result = run argv
 
         match result with
-        | Ok _     -> printfn "SUCCESS"
-        | Bad errs -> 
-            errs |> List.iter handleError
-            errs |> List.iter log
+        | Ok _     -> do printfn "SUCCESS"
+        | Bad errs -> do errs |> List.iter handleError
+                      do errs |> List.iter log
         0
