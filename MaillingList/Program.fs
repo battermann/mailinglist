@@ -101,24 +101,22 @@ module Program =
     let private run args =
         getCmds args >>= (Seq.map handle >> Trial.collect)
 
-    let handleError err =
+    let private handleError err =
         match err with
         | DbUpdateFailure ex           -> do printfn "FAILURE: %s" "An error occurred while accessing the database."
         | CsvFileAccessFailure ex      -> do printfn "FAILURE: %s" "An error occurred while accessing the CSV file."
         | CliArgumentParsingFailure ex -> do printfn "FAILURE: %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
         | ConfigurationFailure ex      -> do printfn "FAILURE: %s" "An error occurred while reading from the application's configuration file."
 
-    open System.IO
-    open System 
+    let private makeLogMsg datetime err = 
+        match err with
+        | DbUpdateFailure ex           -> sprintf "[%A], [ERROR], [DbUpdateFailure]\r\n%A" datetime  ex
+        | CsvFileAccessFailure ex      -> sprintf "[%A], [ERROR], [CsvFileAccessFailure]\r\n%A" datetime ex
+        | CliArgumentParsingFailure ex -> sprintf "[%A], [ERROR], [CliArgumentParsingFailure]\r\n%A" datetime ex
+        | ConfigurationFailure ex      -> sprintf "[%A], [ERROR], [ConfigurationFailure]\r\n%A" datetime ex
 
-    let log err =
-        let makeLogMsg err = 
-            match err with
-            | DbUpdateFailure ex           -> [sprintf "%s, database update failure" (DateTime.Now.ToString()); sprintf "%A" ex]
-            | CsvFileAccessFailure ex      -> [sprintf "%s, CSV file access failure" (DateTime.Now.ToString()); sprintf "%A" ex]
-            | CliArgumentParsingFailure ex -> [sprintf "%s, CLI argument parsing failure" (DateTime.Now.ToString()); sprintf "%A" ex]
-            | ConfigurationFailure ex      -> [sprintf "%s, configuration failure" (DateTime.Now.ToString()); sprintf "%A" ex]
-        do try File.AppendAllLines("log.txt", err |> makeLogMsg) with _ -> ()
+    let private fileLogger fileName msg =
+        do try System.IO.File.AppendAllText(fileName, sprintf "%s\r\n" msg) with _ -> ()
 
     [<EntryPoint>]
     let main argv = 
@@ -127,5 +125,5 @@ module Program =
         match result with
         | Ok _     -> do printfn "SUCCESS"
         | Bad errs -> do errs |> List.iter handleError
-                      do errs |> List.iter log
+                      do errs |> List.iter (makeLogMsg System.DateTime.Now >> fileLogger "log.txt")
         0
