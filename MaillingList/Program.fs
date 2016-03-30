@@ -18,16 +18,16 @@ module DataAccess =
 
     let insert cs list =
         let db = DbSchema.GetDataContext(cs)
-        list
-        |> List.map (fun e -> toDto e.Email e.Name)
-        |> db.MailingList.InsertAllOnSubmit
-        |> db.DataContext.SubmitChanges
+        do list
+           |> List.map (fun e -> toDto e.Email e.Name)
+           |> db.MailingList.InsertAllOnSubmit
+           |> db.DataContext.SubmitChanges
 
     let delete cs =
         let db = DbSchema.GetDataContext(cs)
-        db.MailingList
-        |> db.MailingList.DeleteAllOnSubmit
-        |> db.DataContext.SubmitChanges
+        do db.MailingList
+           |> db.MailingList.DeleteAllOnSubmit
+           |> db.DataContext.SubmitChanges
 
 module CsvAccess =
     open FSharp.Data
@@ -66,14 +66,14 @@ module Program =
 
     let private handle cmd =
         match cmd with
-        | Import fileName -> readFromCsvFile fileName |> import
-        | Delete          -> delete()
+        | Import fileName -> do readFromCsvFile fileName |> import
+        | Delete          -> do delete()
 
     let private run args =
-        getCmds args
-        |> List.iter handle
+        do getCmds args
+           |> List.iter handle
 
     [<EntryPoint>]
     let main argv = 
-        run argv
+        do run argv
         0
