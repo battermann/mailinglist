@@ -30,24 +30,23 @@ module DataAccess =
 
     let private toDto (Email email) (Name name) =
         DbSchema.ServiceTypes.MailingList(Email = email, Name = name)
-    
-    let private updateDb cs updater =
-        let db = DbSchema.GetDataContext(cs)
-        do updater db
-        db.DataContext.SubmitChanges()
 
     let insert cs list =
-        let insert (db:Database) = 
+        let insert () =
+            let db = DbSchema.GetDataContext(cs)
             do list
                |> List.map (fun e -> toDto e.Email e.Name)
                |> db.MailingList.InsertAllOnSubmit
-        let updater () = updateDb cs insert
-        tryF updater DbUpdateFailure
+               |> db.DataContext.SubmitChanges
+        tryF insert DbUpdateFailure
 
     let delete cs =
-        let delete (db:Database) = db.MailingList |> db.MailingList.DeleteAllOnSubmit
-        let updater () = updateDb cs delete
-        tryF updater DbUpdateFailure
+        let delete () = 
+            let db = DbSchema.GetDataContext(cs)
+            do db.MailingList 
+               |> db.MailingList.DeleteAllOnSubmit
+               |> db.DataContext.SubmitChanges
+        tryF delete DbUpdateFailure
 
 module CsvAccess =
     open FSharp.Data
