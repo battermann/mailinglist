@@ -55,10 +55,11 @@ module CsvAccess =
     type MailingListData = CsvProvider<"mailinglist.csv">
 
     let readFromCsvFile (fileName:string) = 
-        tryF (fun () ->
+        let read () =
             let data = MailingListData.Load(fileName)
             [for row in data.Rows do
-                yield { Email = Email row.Email; Name = Name row.Name}]) CsvFileAccessFailure
+                yield { Email = Email row.Email; Name = Name row.Name}]
+        tryF read CsvFileAccessFailure
 
 module Arguments =
     open Argu
@@ -72,10 +73,11 @@ module Arguments =
             member s.Usage = match s with Import _ -> "import csv data" | Delete -> "delete all entries"
 
     let getCmds args =
-        tryF (fun () ->
+        let parse () =
             let parser = ArgumentParser.Create<CliArguments>()
             let results = parser.Parse args
-            results.GetAllResults()) CliArgumentParsingFailure
+            results.GetAllResults()
+        tryF parse CliArgumentParsingFailure
 
 module Program =
     open FSharp.Configuration
