@@ -104,14 +104,14 @@ module Program =
 
     let private handleError err =
         match err with
-        | DbUpdateFailure ex           -> do printfn "FAILURE: %s" "An error occurred while accessing the database."
-        | CsvFileAccessFailure ex      -> do printfn "FAILURE: %s" "An error occurred while accessing the CSV file."
-        | CliArgumentParsingFailure ex -> do printfn "FAILURE: %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
-        | ConfigurationFailure ex      -> do printfn "FAILURE: %s" "An error occurred while reading from the application's configuration file."
+        | DbUpdateFailure ex           -> do printfn "Sorry, the operation could not be completed. %s\n%s" "An error occurred while accessing the database. " ex.Message
+        | CsvFileAccessFailure ex      -> do printfn "Sorry, the operation could not be completed. %s\n%s" "An error occurred while accessing the CSV file." ex.Message
+        | CliArgumentParsingFailure ex -> do printfn "Sorry, the operation could not be completed. %s\n%s" "An error occurred while parsing the command line argument(s)." ex.Message
+        | ConfigurationFailure ex      -> do printfn "Sorry, the operation could not be completed. %s\n%s" "An error occurred while reading from the application's configuration file." ex.Message
 
     let private makeLogMsg datetime err = 
         match err with
-        | DbUpdateFailure ex           -> sprintf "[%A], [ERROR], [DbUpdateFailure]\r\n%A" datetime  ex
+        | DbUpdateFailure ex           -> sprintf "[%A], [ERROR], [DbUpdateFailure]\r\n%A" datetime ex
         | CsvFileAccessFailure ex      -> sprintf "[%A], [ERROR], [CsvFileAccessFailure]\r\n%A" datetime ex
         | CliArgumentParsingFailure ex -> sprintf "[%A], [ERROR], [CliArgumentParsingFailure]\r\n%A" datetime ex
         | ConfigurationFailure ex      -> sprintf "[%A], [ERROR], [ConfigurationFailure]\r\n%A" datetime ex
